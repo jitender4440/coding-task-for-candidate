@@ -59,10 +59,9 @@ public class AuthenticationFilter implements Filter {
 	public static void readProperties() {
 		Properties props = new Properties();
 		try {
-			
 			blockledIps.clear();
-			InputStream inputStream = Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream("firewall.properties");
+			InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("firewall.properties");
+			//InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(System.getenv("CATALINA_HOME")+"\\conf\\firewall.properties");
 			if (inputStream != null) {
 				props.load(inputStream);
 				String ipList = props.getProperty("blocked.ips");				
