@@ -2,14 +2,9 @@ package com.luxoft.recruitment.filter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -27,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebFilter("/AuthenticationFilter")
 public class AuthenticationFilter implements Filter {
 
-	private static List<String> ips = new ArrayList<String>();	
+	private static List<String> blockledIps = new ArrayList<String>();	
 
 	public AuthenticationFilter() {
 	}
@@ -42,16 +37,12 @@ public class AuthenticationFilter implements Filter {
 
 		readProperties();
 		
-		String userName = request.getParameter("username");
-		String passwd = request.getParameter("passwd");
-		
 		String ipAddress = request.getRemoteAddr();
 				
-		if(ips.contains(ipAddress)){
+		if(blockledIps.contains(ipAddress)){
 			System.out.println("User logged in " + ipAddress + " at " + new Date().toString());
 			chain.doFilter(request, response);
 		} else {
-			PrintWriter out = response.getWriter();
 			HttpServletResponse httpResponse = null;
 			if (response instanceof HttpServletResponse) {
 				httpResponse = (HttpServletResponse) response;
@@ -69,16 +60,16 @@ public class AuthenticationFilter implements Filter {
 		Properties props = new Properties();
 		try {
 			
-			ips.clear();
+			blockledIps.clear();
 			InputStream inputStream = Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream("ipList.properties");
+					.getResourceAsStream("firewall.properties");
 			if (inputStream != null) {
 				props.load(inputStream);
-				String ipList = props.getProperty("ips");				
+				String ipList = props.getProperty("blocked.ips");				
 				String[] ipp = ipList.split(",");
 				
 				for(String ip : ipp)
-				AuthenticationFilter.ips.add(ip);					
+				AuthenticationFilter.blockledIps.add(ip);					
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
